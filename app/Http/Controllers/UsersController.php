@@ -7,7 +7,13 @@ use App\Models\User;
 use App\Http\Requests\UserRequest;
 use App\Http\Requests\UserEdit;
 class UsersController extends Controller
-{
+{	
+	public  function __construct(){
+		$this->middleware('auth',['except' =>['create','show','store']]);
+		$this->middleware('guest', [
+				'only' => ['create']
+				]);
+	}
 	public function create()
     {
         return view('users.create');
@@ -32,12 +38,15 @@ class UsersController extends Controller
     }
     
     public function edit(User $user)
-    {
+    {	
+    	$this->authorize('update',$user);
     	return view('users.edit', compact('user'));
     }
     
     
     public function update(User $user,UserEdit $request){
+    	$this->authorize('update',$user);
+    	 
     	$data = [];
     	$data['name'] = $request->name;
     	if ($request->password) {
