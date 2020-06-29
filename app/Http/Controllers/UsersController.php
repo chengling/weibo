@@ -9,11 +9,17 @@ use App\Http\Requests\UserEdit;
 class UsersController extends Controller
 {	
 	public  function __construct(){
-		$this->middleware('auth',['except' =>['create','show','store']]);
+		$this->middleware('auth',['except' =>['create','show','store','index']]);
 		$this->middleware('guest', [
 				'only' => ['create']
 				]);
 	}
+	
+	public function index(){
+		$user  = User::paginate(10);
+		return view('users.index',['user' =>$user]);	
+	}
+	
 	public function create()
     {
         return view('users.create');
@@ -56,5 +62,14 @@ class UsersController extends Controller
     	session()->flash('success', '个人资料更新成功！');
     	 
     	return redirect()->route('users.show',$user);
+    }
+    
+    
+    public function destroy(User $user,Request $request){
+    	$this->authorize('destroy',$user);
+    	$user->delete();
+    	session()->flash('success', '成功删除用户！');
+    	//return back();
+    	return redirect()->route('users.index');
     }
 }
